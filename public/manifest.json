@@ -1,0 +1,44 @@
+{
+    "name": "Request Hostage",
+    "description": "请求劫持",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "declarativeNetRequest",
+        "declarativeNetRequestFeedback",
+        "storage",
+        "cookies"
+    ],
+    "action": {
+        "default_popup": "./receiver.html",
+        "default_icon": {
+            "16": "./images/logo-36.png",
+            "32": "./images/logo-36.png",
+            "48": "./images/logo-48.png",
+            "128": "./images/logo-128.png"
+        }
+    },
+    "icons": {
+        "16": "./images/logo-36.png",
+        "32": "./images/logo-36.png",
+        "48": "./images/logo-48.png",
+        "128": "./images/logo-128.png"
+    },
+    "background": {
+        "service_worker": "manipulator.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*/*", "http://*/*"],
+            "all_frames": true,
+            "js": ["injector.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["js/*"],
+            "matches": ["https://*/*", "http://*/*"]
+        }
+    ],
+    "host_permissions": ["http://*/*", "https://*/*"]
+}
