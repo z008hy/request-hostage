@@ -1,14 +1,15 @@
 import { proxy } from 'ajax-hook';
 
 import { Routing } from '@/types';
-import { matchPath, routeParser } from '@/utils/route-parser';
+import { equalPath, routeParser } from '@/utils/route-parser';
 import { ORIGINAL_HEADER } from '@/constant';
 
-export const xhrRobber = (routines: Routing[], ignorePaths: string[]) => {
+export const xhrRobber = (status: boolean) => (routines: Routing[], ignorePaths: string[]) => {
     proxy({
         onRequest: (config, handler) => {
+            if (!status) return handler.next(config);
             const url = config.url;
-            if (matchPath(url, ignorePaths)) return handler.next(config);
+            if (ignorePaths.some((itm) => equalPath(itm, url))) return handler.next(config);
             const parseResult = routeParser(url, routines);
             if (!parseResult) return handler.next(config);
             handler.next({

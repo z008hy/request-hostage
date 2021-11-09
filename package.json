@@ -5,7 +5,8 @@
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint"
+        "lint": "vue-cli-service lint",
+        "fake": "json-server --watch _fake/user.json --routes _fake/routes.json"
     },
     "dependencies": {
         "ajax-hook": "^2.0.3",
@@ -15,6 +16,7 @@
     },
     "devDependencies": {
         "@types/chrome": "^0.0.163",
+        "@types/urijs": "^1.19.17",
         "@typescript-eslint/eslint-plugin": "^4.18.0",
         "@typescript-eslint/parser": "^4.18.0",
         "@vue/cli-plugin-babel": "~4.5.0",
@@ -30,10 +32,11 @@
         "eslint-plugin-unicorn": "^34.0.1",
         "eslint-plugin-vue": "^7.13.0",
         "eslint-sundries": "^0.0.8",
+        "json-server": "^0.17.0",
         "prettier": "^2.2.1",
         "sass": "^1.38.0",
         "sass-loader": "^10",
         "typescript": "~4.1.5",
-        "url": "^0.11.0"
+        "urijs": "^1.19.7"
     }
 }

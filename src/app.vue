@@ -20,13 +20,13 @@
         </template>
         <div>
             <el-form label-position="top" size="small" :model="filterConfig">
-                <el-form-item label="Intercepted Host">
+                <el-form-item label="Intercepted Path (https://www.example.com/path)">
                     <el-input v-model="filterConfig.route" :prefix-icon="Link" />
                 </el-form-item>
-                <el-form-item label="Target Path">
+                <el-form-item label="Target Host (https://www.example.com/)">
                     <el-input v-model="filterConfig.redirect" :prefix-icon="Right" />
                 </el-form-item>
-                <el-form-item label="Ignore Path">
+                <el-form-item label="Ignore Path (https://www.example.com/a/b/1992)">
                     <el-input v-model="filterConfig.ignore" :prefix-icon="Remove" />
                 </el-form-item>
             </el-form>
@@ -35,12 +35,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
-import { ElForm, ElSwitch, ElFormItem, ElInput, ElCard, ElIcon } from 'element-plus';
+import { defineComponent, reactive, onMounted } from 'vue';
+import { ElForm, ElSwitch, ElFormItem, ElInput, ElCard, ElIcon, ElLoading } from 'element-plus';
 import { Filter, Close, Link, Right, Orange, Remove } from '@element-plus/icons';
 
 import { HostageConfig } from '@/types';
-import { toggleSwitch } from '@/business';
+import { getCurrentConfig, init, toggleSwitch } from '@/business';
 
 export default defineComponent({
     name: 'App',
@@ -52,7 +52,31 @@ export default defineComponent({
             ignore: '',
             status: false,
         });
+        const loading = ElLoading.service({
+            lock: true,
+            background: 'rgba(255, 246, 0, 0.5)',
+        });
+        console.warn('init');
+        getCurrentConfig()
+            .then((config) => {
+                loading.close();
+                if (!config) return;
+                const { route, redirect, ignore, status } = config;
+                filterConfig.redirect = redirect;
+                filterConfig.route = route;
+                filterConfig.status = status;
+                filterConfig.ignore = ignore;
+                document.documentElement.dataset.theme = status ? 'dark' : 'light';
+                console.warn('finish init');
+            })
+            .catch(() => {
+                console.warn('Error init');
+
+                loading.close();
+            });
+
         const onSwitch = (value: boolean) => toggleSwitch(value, filterConfig);
+
         return {
             Link,
             Right,
@@ -85,11 +109,15 @@ body {
         --el-input-placeholder-color: #010409;
     }
 }
+.el-card {
+    border: none;
+    border-radius: 0;
+}
 .box {
     width: 380px;
 }
 .header {
-    overflow: auto;
+    overflow: hidden;
     .switch-form-item {
         float: right;
     }

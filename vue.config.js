@@ -17,6 +17,7 @@ module.exports = {
     },
     chainWebpack: (config) => {
         config.optimization.delete('splitChunks');
+        config.optimization.set('minimize', false);
         config.plugins.delete('html-spy');
     },
 };

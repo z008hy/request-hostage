@@ -1,3 +1,5 @@
+// TODO TS
+
 const createCorsHeaders = (host) => [
     {
         header: 'Access-Control-Allow-Origin',
@@ -7,7 +9,7 @@ const createCorsHeaders = (host) => [
     {
         header: 'Access-Control-Allow-Credentials',
         operation: 'set',
-        value: true,
+        value: 'true',
     },
     {
         header: 'Access-Control-Allow-Methods',
@@ -21,17 +23,15 @@ const createUpdateRulesOption = async (modifyDomains) => {
     const removeRuleIds = currentDomains.map((cd) => cd.id);
     const addRules = modifyDomains.map((md, idx) => ({
         priority: 1,
-        id: idx,
+        id: idx + 1,
         condition: {
             domains: [md.domain],
             resourceTypes: ['xmlhttprequest', 'sub_frame'],
         },
-        action: [
-            {
-                type: 'modifyHeaders',
-                responseHeaders: createCorsHeaders(md.domainWithProtocol),
-            },
-        ],
+        action: {
+            type: 'modifyHeaders',
+            responseHeaders: createCorsHeaders(md.domainWithProtocol),
+        },
     }));
     return {
         removeRuleIds,
