@@ -1,6 +1,6 @@
 import URI from 'urijs';
 
-import { Routing } from '@/types';
+import { HostageConfig } from '@/types';
 
 const matchPath = (url: string, userFilterPath: string) => {
     const { hostname, path } = URI.parse(url);
@@ -9,15 +9,16 @@ const matchPath = (url: string, userFilterPath: string) => {
     return !!(hostname === filterHost && path?.includes(filterPath || ''));
 };
 
-const resolvePath = (url: string, target: string): string => {
+const resolvePath = (url: string, routing: HostageConfig): string => {
     const { path } = URI.parse(url);
-    return `${URI(target).toString()}${path}`;
+    const uriWithoutPro = URI(routing.redirect).protocol(routing.redirectProtocol);
+    return `${uriWithoutPro.toString()}${path}`;
 };
 
-export const routeParser = (url: string, routing: Routing[]): string => {
+export const routeParser = (url: string, routing: HostageConfig[]): string => {
     const matchRoute = routing.find((routing) => matchPath(url, routing.route));
     if (!matchRoute) return '';
-    return resolvePath(url, matchRoute?.redirect || '') || '';
+    return resolvePath(url, matchRoute) || '';
 };
 
 export const equalPath = (a: string, b: string) => {
