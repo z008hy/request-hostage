@@ -19,14 +19,27 @@
             </div>
         </template>
         <div>
-            <el-form label-position="top" size="small" :model="filterConfig">
-                <el-form-item label="Intercepted Path (https://www.example.com/path)">
+            <el-form
+                label-position="top"
+                size="small"
+                :model="filterConfig"
+                :rules="filterConfigRules"
+            >
+                <el-form-item label="Intercepted Path" prop="route">
+                    <el-radio-group v-model="filterConfig.routeProtocol">
+                        <el-radio label="http" value="HTTP"></el-radio>
+                        <el-radio label="https" value="HTTPS"></el-radio>
+                    </el-radio-group>
                     <el-input v-model="filterConfig.route" :prefix-icon="Link" />
                 </el-form-item>
-                <el-form-item label="Target Host (https://www.example.com/)">
+                <el-form-item label="Target Host" prop="redirect">
+                    <el-radio-group v-model="filterConfig.redirectProtocol">
+                        <el-radio label="http" />
+                        <el-radio label="https" />
+                    </el-radio-group>
                     <el-input v-model="filterConfig.redirect" :prefix-icon="Right" />
                 </el-form-item>
-                <el-form-item label="Ignore Path (https://www.example.com/a/b/1992)">
+                <el-form-item label="Ignore Path" prop="ignore">
                     <el-input v-model="filterConfig.ignore" :prefix-icon="Remove" />
                 </el-form-item>
             </el-form>
@@ -35,23 +48,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, onMounted } from 'vue';
-import { ElForm, ElSwitch, ElFormItem, ElInput, ElCard, ElIcon, ElLoading } from 'element-plus';
-import { Filter, Close, Link, Right, Orange, Remove } from '@element-plus/icons';
+import { defineComponent, reactive } from 'vue';
+import {
+    ElCard,
+    ElForm,
+    ElFormItem,
+    ElIcon,
+    ElInput,
+    ElLoading,
+    ElSwitch,
+    ElRadioGroup,
+    ElRadio,
+} from 'element-plus';
+import { Close, Filter, Link, Orange, Remove, Right } from '@element-plus/icons';
 
 import { HostageConfig } from '@/types';
-import { getCurrentConfig, init, toggleSwitch } from '@/business';
+import {
+    getCurrentConfig,
+    getDefaultConfig,
+    getDefaultConfigRules,
+    init,
+    toggleSwitch,
+} from '@/business';
 
 export default defineComponent({
     name: 'App',
-    components: { ElForm, ElFormItem, ElInput, ElSwitch, ElCard, ElIcon, Orange },
+    components: {
+        ElForm,
+        ElFormItem,
+        ElInput,
+        ElSwitch,
+        ElCard,
+        ElIcon,
+        ElRadioGroup,
+        ElRadio,
+        Orange,
+    },
     setup() {
-        const filterConfig = reactive<HostageConfig>({
-            route: '',
-            redirect: '',
-            ignore: '',
-            status: false,
-        });
+        const filterConfig = reactive<HostageConfig>(getDefaultConfig());
         const loading = ElLoading.service({
             lock: true,
             background: 'rgba(255, 246, 0, 0.5)',
@@ -84,6 +118,7 @@ export default defineComponent({
             close: Close,
             open: Filter,
             filterConfig,
+            filterConfigRules: getDefaultConfigRules(),
             onSwitch,
         };
     },
@@ -114,7 +149,7 @@ body {
     border-radius: 0;
 }
 .box {
-    width: 380px;
+    width: 480px;
 }
 .header {
     overflow: hidden;

@@ -1,5 +1,12 @@
+export enum Protocol {
+    HTTP = 'http',
+    HTTPS = 'https',
+}
+
 export interface HostageConfig {
+    routeProtocol: Protocol;
     route: string;
+    redirectProtocol: Protocol;
     redirect: string;
     status: boolean;
     ignore: string;

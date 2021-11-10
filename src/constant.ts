@@ -1,6 +1,12 @@
 export const ORIGINAL_HEADER = 'x-robber-origin-url';
+
 export const CONFIG_STORAGE_KEY = 'CUSTOM_ROBBER_CONFIG';
 export const DOMAINS_STORAGE_KEY = 'CUSTOM_ROBBER_DOMAINS';
+
 export const MESSAGE_BEGIN_ROBBER = 'MESSAGE_BEGIN_ROBBER';
+export const MESSAGE_SPY_LOADED = 'MESSAGE_SPY_LOADED';
+
 export const MESSAGE_MODIFY_CORS = 'MODIFY_CORS';
+
+// 全局事件
 export const SPY_CUSTOM_EVENT = 'SPY_CUSTOM_EVENT';

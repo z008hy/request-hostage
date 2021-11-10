@@ -1,29 +1,17 @@
-import { CorsDomain, HostageConfig, SecretMessage } from '@/types';
-import { MESSAGE_BEGIN_ROBBER, MESSAGE_MODIFY_CORS } from '@/constant';
+import { CorsDomain, HostageConfig, Protocol } from '@/types';
 import { setConfig, getConfig, getCurrentDomain, setCurrentDomain } from '@/storage';
+import { postSetCors, postSetRobber } from '@/message';
 
 const postRequestRobber = async (hostageConfig: HostageConfig) => {
-    const postMessage: SecretMessage<HostageConfig> = {
-        type: MESSAGE_BEGIN_ROBBER,
-        data: hostageConfig,
-    };
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs?.[0].id) {
-        chrome.tabs.sendMessage(tabs?.[0].id, postMessage, (message: string) => {
-            if (message) console.warn(message);
-        });
+        postSetRobber(tabs[0].id, hostageConfig);
     }
 };
 
 const postDomainCORS = (domains: CorsDomain[]) => {
     if (domains.length === 0) return;
-    const postMessage: SecretMessage<CorsDomain[]> = {
-        type: MESSAGE_MODIFY_CORS,
-        data: domains,
-    };
-    chrome.runtime.sendMessage(chrome.runtime.id, postMessage, (message: string) => {
-        if (message) console.warn(message);
-    });
+    postSetCors(chrome.runtime.id, domains);
 };
 
 const saveCurrentConfig = async (filterConfig: HostageConfig) => {
@@ -40,6 +28,32 @@ const flushDomainCors = async () => {
     const domains = await setCurrentDomain(domain);
     postDomainCORS(domains);
 };
+
+export const getDefaultConfigRules = () => ({
+    route: [
+        {
+            required: true,
+            message: 'Please input Intercepted Path',
+            trigger: 'blur',
+        },
+    ],
+    redirect: [
+        {
+            required: true,
+            message: 'Please input Target Host',
+            trigger: 'blur',
+        },
+    ],
+});
+
+export const getDefaultConfig = () => ({
+    status: false,
+    routeProtocol: Protocol.HTTPS,
+    route: '',
+    redirect: '',
+    redirectProtocol: Protocol.HTTP,
+    ignore: '',
+});
 
 export const getCurrentConfig = async (): Promise<HostageConfig | undefined> => {
     const domainConfig = await getCurrentDomain();
