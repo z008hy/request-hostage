@@ -1,4 +1,4 @@
-import { proxy } from 'ajax-hook';
+import { proxy, unProxy } from 'ajax-hook';
 
 import { HostageConfig } from '@/types';
 import { equalPath, routeParser } from '@/utils/route-parser';
@@ -6,6 +6,7 @@ import { ORIGINAL_HEADER } from '@/constant';
 
 export const xhrRobber =
     (status: boolean) => (routines: HostageConfig[], ignorePaths: string[]) => {
+        unProxy();
         proxy({
             onRequest: (config, handler) => {
                 if (!status) return handler.next(config);

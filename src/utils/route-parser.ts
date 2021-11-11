@@ -11,12 +11,17 @@ const matchPath = (url: string, userFilterPath: string) => {
 
 const resolvePath = (url: string, routing: HostageConfig): string => {
     const { path } = URI.parse(url);
-    const uriWithoutPro = URI(routing.redirect).protocol(routing.redirectProtocol);
-    return `${uriWithoutPro.toString()}${path}`;
+    const uriWithProtocol = URI(`${routing.redirectProtocol}://${routing.redirect}`);
+    return `${uriWithProtocol.toString()}/${path}`
+        .split('/')
+        .filter((it) => it)
+        .join('/');
 };
 
 export const routeParser = (url: string, routing: HostageConfig[]): string => {
-    const matchRoute = routing.find((routing) => matchPath(url, routing.route));
+    const matchRoute = routing.find((routing) =>
+        matchPath(url, `${routing.routeProtocol}://${routing.route}`),
+    );
     if (!matchRoute) return '';
     return resolvePath(url, matchRoute) || '';
 };
