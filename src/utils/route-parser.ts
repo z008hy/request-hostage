@@ -10,9 +10,11 @@ const matchPath = (url: string, userFilterPath: string) => {
 };
 
 const resolvePath = (url: string, routing: HostageConfig): string => {
-    const { path } = URI.parse(url);
+    const { path: urlPath } = URI.parse(url);
+    const { path: routePath } = URI.parse(`${routing.routeProtocol}://${routing.route}`);
+    const mergePath = urlPath?.slice(routePath?.length || 0) || 0;
     const uriWithProtocol = URI(`${routing.redirectProtocol}://${routing.redirect}`);
-    return `${uriWithProtocol.toString()}/${path}`
+    return `${uriWithProtocol.toString()}/${mergePath}`
         .split('/')
         .filter((it) => it)
         .join('/');
