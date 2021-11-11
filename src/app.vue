@@ -12,35 +12,54 @@
                     :width="50"
                     :active-value="true"
                     :inactive-value="false"
-                    :active-icon="open"
-                    :inactive-icon="close"
-                    @change="onSwitch"
+                    :active-icon="icons.Filter"
+                    :inactive-icon="icons.Close"
+                    @change="onStatusSwitch"
                 />
             </div>
         </template>
         <div>
             <el-form
+                ref="configForm"
                 label-position="top"
                 size="small"
                 :model="filterConfig"
                 :rules="filterConfigRules"
             >
                 <el-form-item label="Intercepted Path" prop="route">
-                    <el-radio-group v-model="filterConfig.routeProtocol">
+                    <el-radio-group
+                        v-model="filterConfig.routeProtocol"
+                        @change="onFormContentChange"
+                    >
                         <el-radio label="http" value="HTTP"></el-radio>
                         <el-radio label="https" value="HTTPS"></el-radio>
                     </el-radio-group>
-                    <el-input v-model="filterConfig.route" :prefix-icon="Link" />
+                    <el-input
+                        v-model="filterConfig.route"
+                        :prefix-icon="icons.Link"
+                        @change="onFormContentChange"
+                    />
                 </el-form-item>
                 <el-form-item label="Target Host" prop="redirect">
-                    <el-radio-group v-model="filterConfig.redirectProtocol">
+                    <el-radio-group
+                        v-model="filterConfig.redirectProtocol"
+                        @change="onFormContentChange"
+                    >
                         <el-radio label="http" />
                         <el-radio label="https" />
                     </el-radio-group>
-                    <el-input v-model="filterConfig.redirect" :prefix-icon="Right" />
+                    <el-input
+                        v-model="filterConfig.redirect"
+                        :prefix-icon="icons.Right"
+                        @change="onFormContentChange"
+                    />
                 </el-form-item>
                 <el-form-item label="Ignore Path" prop="ignore">
-                    <el-input v-model="filterConfig.ignore" :prefix-icon="Remove" />
+                    <el-input
+                        v-model="filterConfig.ignore"
+                        :prefix-icon="icons.Remove"
+                        @change="onFormContentChange"
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -48,28 +67,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import {
     ElCard,
     ElForm,
     ElFormItem,
     ElIcon,
     ElInput,
-    ElLoading,
     ElSwitch,
     ElRadioGroup,
     ElRadio,
 } from 'element-plus';
 import { Close, Filter, Link, Orange, Remove, Right } from '@element-plus/icons';
 
-import { HostageConfig } from '@/types';
-import {
-    getCurrentConfig,
-    getDefaultConfig,
-    getDefaultConfigRules,
-    init,
-    toggleSwitch,
-} from '@/business';
+import { initialization } from '@/composables/initialization';
+import { formController } from '@/composables/form-controller';
 
 export default defineComponent({
     name: 'App',
@@ -85,41 +97,25 @@ export default defineComponent({
         Orange,
     },
     setup() {
-        const filterConfig = reactive<HostageConfig>(getDefaultConfig());
-        const loading = ElLoading.service({
-            lock: true,
-            background: 'rgba(255, 246, 0, 0.5)',
-        });
-        console.warn('init');
-        getCurrentConfig()
-            .then((config) => {
-                loading.close();
-                if (!config) return;
-                const { route, redirect, ignore, status } = config;
-                filterConfig.redirect = redirect;
-                filterConfig.route = route;
-                filterConfig.status = status;
-                filterConfig.ignore = ignore;
-                document.documentElement.dataset.theme = status ? 'dark' : 'light';
-                console.warn('finish init');
-            })
-            .catch(() => {
-                console.warn('Error init');
+        const { filterConfig, filterConfigRules } = initialization();
 
-                loading.close();
-            });
+        const { configForm, onStatusSwitch, onFormContentChange } = formController(filterConfig);
 
-        const onSwitch = (value: boolean) => toggleSwitch(value, filterConfig);
-
-        return {
+        const icons = {
             Link,
             Right,
             Remove,
-            close: Close,
-            open: Filter,
+            Close,
+            Filter,
+        };
+
+        return {
+            icons,
+            configForm,
             filterConfig,
-            filterConfigRules: getDefaultConfigRules(),
-            onSwitch,
+            filterConfigRules,
+            onStatusSwitch,
+            onFormContentChange,
         };
     },
 });

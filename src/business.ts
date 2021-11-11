@@ -1,20 +1,21 @@
 import { CorsDomain, HostageConfig, Protocol } from '@/types';
 import { setConfig, getConfig, getCurrentDomain, setCurrentDomain } from '@/storage';
 import { postSetCors, postSetRobber } from '@/message';
+import { validateHost } from '@/utils/validator';
 
-const postRequestRobber = async (hostageConfig: HostageConfig) => {
+export const postRequestRobber = async (hostageConfig: HostageConfig) => {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs?.[0].id) {
         postSetRobber(tabs[0].id, hostageConfig);
     }
 };
 
-const postDomainCORS = (domains: CorsDomain[]) => {
+export const postDomainCORS = (domains: CorsDomain[]) => {
     if (domains.length === 0) return;
     postSetCors(chrome.runtime.id, domains);
 };
 
-const saveCurrentConfig = async (filterConfig: HostageConfig) => {
+export const saveCurrentConfig = async (filterConfig: HostageConfig) => {
     const domainConfig = await getCurrentDomain();
     if (domainConfig) {
         const currentConfig = await getConfig();
@@ -22,7 +23,12 @@ const saveCurrentConfig = async (filterConfig: HostageConfig) => {
     }
 };
 
-const flushDomainCors = async () => {
+export const flushCurrentConfig = async (filterConfig: HostageConfig) => {
+    await saveCurrentConfig(filterConfig);
+    return postRequestRobber(filterConfig);
+};
+
+export const flushDomainCors = async () => {
     const domain = await getCurrentDomain();
     if (!domain) return;
     const domains = await setCurrentDomain(domain);
@@ -36,11 +42,19 @@ export const getDefaultConfigRules = () => ({
             message: 'Please input Intercepted Path',
             trigger: 'blur',
         },
+        {
+            validator: validateHost,
+            trigger: 'blur',
+        },
     ],
     redirect: [
         {
             required: true,
             message: 'Please input Target Host',
+            trigger: 'blur',
+        },
+        {
+            validator: validateHost,
             trigger: 'blur',
         },
     ],
@@ -64,13 +78,8 @@ export const getCurrentConfig = async (): Promise<HostageConfig | undefined> => 
     return undefined;
 };
 
-export const toggleSwitch = async (value: boolean, filterConfig: HostageConfig) => {
-    document.documentElement.dataset.theme = value ? 'dark' : 'light';
-    await saveCurrentConfig(filterConfig);
-    await flushDomainCors();
-    if (value) {
-        await postRequestRobber(filterConfig);
-    }
+export const switchTheme = (theme: 'dark' | 'light') => {
+    document.documentElement.dataset.theme = theme;
 };
 
 export const init = async () => {

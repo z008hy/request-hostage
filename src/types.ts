@@ -1,3 +1,5 @@
+import { ElForm } from 'element-plus';
+
 export enum Protocol {
     HTTP = 'http',
     HTTPS = 'https',
@@ -27,3 +29,5 @@ export interface SecretMessage<T> {
     type: string;
     data: T;
 }
+
+export type ElFormRefType = InstanceType<typeof ElForm>;
